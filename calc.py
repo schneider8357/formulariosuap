@@ -3,6 +3,10 @@ import cgi
 import json
 import requests
 
+import cgitb
+cgitb.enable()
+
+
 urls = { 'token':'https://suap.ifrn.edu.br/api/v2/autenticacao/token/', 'dados':'https://suap.ifrn.edu.br/api/v2/minhas-informacoes/meus-dados/'}
 
 def getToken(autenticacao): # Retorna o token para acesso ao SUAP.
@@ -24,13 +28,13 @@ def autentica(login,senha):
 	return informacoes
 
 form = cgi.FieldStorage()
-matricula = form.getvalue("valor1")
-senha = form.getvalue("valor2")
-operacao = form.getvalue("operacao")
+matricula = form.getvalue("user")
+senha = form.getvalue("pass")
 
-informacoes = autentica(matricula, senha)
+
+informacoes = autentica(matricula.encode('utf-8'), senha.encode('utf-8'))
 
 print ("Content-type: text/html\n\n" )
 print ("<html><body>")
-print ("<h1>{}</h1>".format(informacoes['nome_usual']))
+print ("<h1>{}</h1>".format(informacoes['email']))
 print ("</body></html>")
