@@ -23,9 +23,12 @@ def getInformacoes(cabecalho): # Retorna os dados utilizando o token.
 
 def autentica(login,senha):
 	autenticacao = { 'username': login, 'password': senha }
-	cabecalho = {'Authorization': 'JWT {0}'.format(getToken(autenticacao))}
-	informacoes = json.loads(getInformacoes(cabecalho))
-	return informacoes
+	token = getToken(autenticacao)
+	if token == None: return None
+	cabecalho = {'Authorization': 'JWT {0}'.format(token)}
+	informacoes = getInformacoes(cabecalho)
+	if informacoes == None: return None
+	return json.loads(informacoes)
 
 form = cgi.FieldStorage()
 matricula = form.getvalue("user")
@@ -36,5 +39,8 @@ informacoes = autentica(matricula.encode('utf-8'), senha.encode('utf-8'))
 
 print ("Content-type: text/html\n\n" )
 print ("<html><body>")
-print ("<h1>{}</h1>".format(informacoes['email']))
+if informacoes == None:
+	print("TESTE")
+else:
+	print ("<h1>{}</h1>".format(informacoes['email']))
 print ("</body></html>")
