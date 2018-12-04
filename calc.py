@@ -2,10 +2,10 @@
 import cgi
 import json
 import requests
+import psycopg2
 
 import cgitb
 cgitb.enable()
-
 
 urls = { 'token':'https://suap.ifrn.edu.br/api/v2/autenticacao/token/', 'dados':'https://suap.ifrn.edu.br/api/v2/minhas-informacoes/meus-dados/'}
 
@@ -37,10 +37,10 @@ senha = form.getvalue("pass")
 
 informacoes = autentica(matricula.encode('utf-8'), senha.encode('utf-8'))
 
-print ("Content-type: text/html\n\n" )
-print ("<html><body>")
+print("Content-type: text/html\n\n")
+print("<html><body>")
 if informacoes == None:
-	print("TESTE")
+	print("<h1>Não foi possível realizar o login no SUAP. Por obséquio, tente novamente.</h1>")
 else:
-	print ("<h1>{}</h1>".format(informacoes['email']))
+	print ("<h1>{}</h1>".format(informacoes['vinculo']['situacao_sistemica']))
 print ("</body></html>")
