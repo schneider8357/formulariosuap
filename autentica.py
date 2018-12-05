@@ -58,7 +58,6 @@ def gerarHTML(informacoes):
 	exibe = exibe.replace('val_campus',campus)
 	exibe = exibe.replace('val_vinculo',vinculo)
 	if vinculo == 'Servidor':
-		exibe = exibe.replace('val_filename','salva_servidor.py')
 		diretoria = informacoes['vinculo']['setor_suap']
 		discingresso = informacoes['vinculo']['disciplina_ingresso']
 		dados = '''
@@ -71,7 +70,6 @@ def gerarHTML(informacoes):
 				'''.format(diretoria,discingresso)
 		exibe = exibe.replace('<!--servidor-->',dados)
 	if vinculo == 'Aluno':
-		exibe = exibe.replace('val_filename','salva_aluno.py')
 		curso = informacoes['vinculo']['curso']
 		dados = '''
 				<label for="curso">Curso: {0}</label>
