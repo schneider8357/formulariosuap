@@ -61,8 +61,8 @@ def gerarHTML(informacoes):
 		diretoria = informacoes['vinculo']['setor_suap']
 		discingresso = informacoes['vinculo']['disciplina_ingresso']
 		dados = '''
-				<label for="diretoria">Diretoria: {0}</label>
-				<input type="hidden" id="diretoria" name="diretoria" value="{0}">
+				<label for="setor">Setor SUAP: {0}</label>
+				<input type="hidden" id="setor" name="setor" value="{0}">
 				<br />
 				<label for="discingresso">Disciplina de Ingresso: {1}</label>
 				<input type="hidden" id="discingresso" name="discingresso" value="{1}">

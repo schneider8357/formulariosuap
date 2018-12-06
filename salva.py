@@ -11,80 +11,120 @@ cgitb.enable()
 sys.stdout = codecs.getwriter("utf-8")(sys.stdout.detach())
 
 strConexaoPostgres = "dbname=postgres user=postgres host=localhost password=aluno"
-strConexaoAluno = "dbname=aluno user=postgres host=localhost password=aluno"
-strConexaoServidor = "dbname=servidor user=postgres host=localhost password=aluno"
-strCreateAluno = "create table aluno (alu_matricula bigint not null primary key, " \
-									 "alu_nome varchar(100), "\
-									 "alu_email varchar(200) "\
-									 "alu_campus varchar(50) "\
-									 "alu_curso varchar(200))" 
+strConexaoSuap = "dbname=db_suap user=postgres host=localhost password=aluno"
+strCreateAluno = "create table usuario ( matricula bigint not null primary key, " \
+										"nome varchar(100), "\
+										"email varchar(200), "\
+										"campus varchar(50), "\
+										"curso varchar(200), "\
+										"vinculo varchar(50), "\
+										"foto varchar(200))" 
 
+form = cgi.FieldStorage()
+matricula = form.getvalue("matricula")
+nome = form.getvalue("nome")
+email = form.getvalue("email")
+vinculo = form.getvalue("vinculo")
+foto = form.getvalue("foto")
+if vinculo == "Aluno":
+	campus = form.getvalue("campus")
+	curso = form.getvalue("curso")
+elif vinculo == "Servidor":
+	campus = form.getvalue("setor")
+	curso = form.getvalue("discingresso")
+else:
+	pass
 
-def db_exists(datname):
+def db_exists():
 	exists = False
 	try:
-		strSQL = "select datname from pg_database where datname='{}'".format(datname)
+		strSQL = "select datname from pg_database where datname='db_suap'"
 		con = psycopg2.connect(strConexaoPostgres)
 		cur = con.cursor()
 		cur.execute(strSQL)
-		if nomeTabela == cur.fetchone()[0]: exists = True
+		if cur.fetchone(): exists = True
 		cur.close()
 	except psycopg2.Error as e:
 		print (e)
 	return exists
 
-def table_exists(datname, tablename):
+def table_exists():
 	exists = False
 	try:
-		strSQL = "select datname from pg_table where tableowner='{}' tablename='{}'".format(datname,tablename)
-		con = psycopg2.connect(strConexaoPostgres)
+		strSQL = "select relname from pg_class where relname='usuario'"
+		con = psycopg2.connect(strConexaoSuap)
 		cur = con.cursor()
 		cur.execute(strSQL)
-		if nomeTabela == cur.fetchone()[0]: exists = True
+		if cur.fetchone(): exists = True
 		cur.close()
+		con.close()
 	except psycopg2.Error as e:
 		print (e)
 	return exists
 
-def db_create(datname):
+def user_exists(matricula):
+	exists = False
 	try:
-		strSQL = "create database {}".format(datname)
+		strSQL = "select matricula from usuario where matricula='{}'".format(matricula)
+		con = psycopg2.connect(strConexaoSuap)
+		cur = con.cursor()
+		cur.execute(strSQL)
+		if cur.fetchone(): exists = True
+		cur.close()
+		con.close()
+	except psycopg2.Error as e:
+		print (e)
+	return exists
+
+def db_create():
+	try:
+		strSQL = "create database db_suap"
 		con = psycopg2.connect(strConexaoPostgres)
 		cur = con.cursor()
 		cur.execute(strSQL)
-		if nomeTabela == cur.fetchone()[0]: exists = True
 		cur.close()
+		con.close()
 	except psycopg2.Error as e:
 		print (e)
 
-def table_create(datname,tipo):
-	if tipo == "Aluno":
-		try:
-			con = psycopg2.connect(strConexaoAluno)
-			cur = con.cursor()
-			cur.execute(strCreateAluno)
-			cur.close
-		except psycopg2.Error as e:
-			print (e)
-	if tipo == "Servidor"
+def table_create():
+	try:
+		con = psycopg2.connect(strConexaoSuap)
+		cur = con.cursor()
+		cur.execute(strCreateAluno)
+		cur.close()
+		con.commit()
+		con.close()
+	except psycopg2.Error as e:
+		print (e)
+
+def user_insert():
+	conn = psycopg2.connect(strConexaoSuap)
+	cur = conn.cursor()
+	strSQLInsereDados = "insert into usuario values ({0}, '{1}', '{2}','{3}','{4}','{5}','{6}')".format(matricula,nome,email,campus,curso,vinculo,foto)
+	cur.execute(strSQLInsereDados)
+	conn.commit()
+	conn.close()
+	
 
 
 def main():
-	form = cgi.FieldStorage()
-	matricula = form.getvalue("matricula")
-	nome = form.getvalue("nome")
-	email = form.getvalue("email")
-	campus = form.getvalue("campus")
-	vinculo = form.getvalue("vinculo")
-
-
 	print("Content-type: text/html\n\n")
-	if db_exists("db_suap"):
-		if table_exists("db_suap",vinculo):
-			print("a tabela aluno existe!")
-		else:
-			table_create("db_suap",vinculo)
+	if db_exists():
+		print("O banco existe!")
 	else:
-		db_create("db_suap")
+		print("Criando o banco...")
+		db_create()
+	if table_exists():
+		print("A tabela usuario existe!")
+	else:
+		print("Criando tabela usuario...")
+		table_create()
+	if user_exists(matricula):
+		print("O usuário já está cadastrado.")
+	else:
+		print("Inserindo usuário...")
+		user_insert()
+	
 
 if __name__ == "__main__": main()
