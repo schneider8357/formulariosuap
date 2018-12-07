@@ -85,20 +85,23 @@ def gerarHTML(informacoes):
 ## --------------------------------------------------------------------------------------------
 # MAIN
 ## --------------------------------------------------------------------------------------------
-form = cgi.FieldStorage()
-matricula = form.getvalue('matricula')
-senha = form.getvalue('senha')
+def main():
+	form = cgi.FieldStorage()
+	matricula = form.getvalue('matricula')
+	senha = form.getvalue('senha')
 
 
-informacoes = autentica(matricula, senha)
+	informacoes = autentica(matricula, senha)
 
 
-if informacoes == None:
-	print('Content-type: text/html\n')
-	msg ='<br /><font color="red">Não foi possível realizar o login no SUAP. Por obséquio, tente novamente.</font>'
-	with open('index.html', 'rb') as arq: print(arq.read().decode('utf-8').replace('<!--msg-->',msg))
-else:
-	html = gerarHTML(informacoes)
-	print(html)
+	if informacoes == None:
+		print('Content-type: text/html\n')
+		msg ='<br /><font color="red">Não foi possível realizar o login no SUAP. Por obséquio, tente novamente.</font>'
+		with open('index.html', 'rb') as arq: print(arq.read().decode('utf-8').replace('<!--msg-->',msg))
+	else:
+		html = gerarHTML(informacoes)
+		print(html)
 
 ## --------------------------------------------------------------------------------------------
+
+if __name__ == "__main__": main()
