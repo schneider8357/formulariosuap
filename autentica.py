@@ -46,7 +46,6 @@ def gerarHTML(informacoes):
 	matricula = informacoes['matricula']
 	nome = informacoes['vinculo']['nome']
 	email = informacoes['email']
-	campus = informacoes['vinculo']['campus']
 	vinculo = informacoes['tipo_vinculo']
 	foto = 'https://suap.ifrn.edu.br' + informacoes['url_foto_75x100']
 	with open('exibe.html', 'rb') as arq: exibe = arq.read().decode('utf-8')
@@ -55,7 +54,6 @@ def gerarHTML(informacoes):
 	exibe = exibe.replace('val_matricula',matricula)
 	exibe = exibe.replace('val_nome',nome)
 	exibe = exibe.replace('val_email',email)
-	exibe = exibe.replace('val_campus',campus)
 	exibe = exibe.replace('val_vinculo',vinculo)
 	if vinculo == 'Servidor':
 		diretoria = informacoes['vinculo']['setor_suap']
@@ -70,12 +68,16 @@ def gerarHTML(informacoes):
 				'''.format(diretoria,discingresso)
 		exibe = exibe.replace('<!--servidor-->',dados)
 	if vinculo == 'Aluno':
+		campus = informacoes['vinculo']['campus']
 		curso = informacoes['vinculo']['curso']
 		dados = '''
-				<label for="curso">Curso: {0}</label>
-				<input type="hidden" id="curso" name="curso" value="{0}">
+				<label for="campus">Campus: {0}</label>
+				<input type="hidden" id="campus" name="campus" value="{0}">
 				<br />
-				'''.format(curso)
+				<label for="curso">Curso: {1}</label>
+				<input type="hidden" id="curso" name="curso" value="{1}">
+				<br />
+				'''.format(campus,curso)
 		exibe = exibe.replace('<!--aluno-->',dados)
 	return exibe
 ## --------------------------------------------------------------------------------------------

@@ -44,6 +44,7 @@ def db_exists():
 		cur.execute(strSQL)
 		if cur.fetchone(): exists = True
 		cur.close()
+		con.close()
 	except psycopg2.Error as e:
 		print (e)
 	return exists
@@ -78,8 +79,10 @@ def user_exists(matricula):
 
 def db_create():
 	try:
+		from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 		strSQL = "create database db_suap"
 		con = psycopg2.connect(strConexaoPostgres)
+		con.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
 		cur = con.cursor()
 		cur.execute(strSQL)
 		cur.close()
@@ -106,25 +109,61 @@ def user_insert():
 	conn.commit()
 	conn.close()
 	
-
+def gerarHTML(exists):
+	with open('exibe.html', 'rb') as arq: exibe = arq.read().decode('utf-8')
+	exibe = 'Content-type: text/html\n\n' + exibe
+	exibe = exibe.replace('val_foto',foto)
+	exibe = exibe.replace('val_matricula',matricula)
+	exibe = exibe.replace('val_nome',nome)
+	exibe = exibe.replace('val_email',email)
+	exibe = exibe.replace('val_campus',campus)
+	exibe = exibe.replace('val_vinculo',vinculo)
+	if vinculo == 'Servidor':
+		dados = '''
+				<label for="setor">Setor SUAP: {0}</label>
+				<input type="hidden" id="setor" name="setor" value="{0}">
+				<br />
+				<label for="discingresso">Disciplina de Ingresso: {1}</label>
+				<input type="hidden" id="discingresso" name="discingresso" value="{1}">
+				<br />
+				'''.format(campus,curso)
+		exibe = exibe.replace('<!--servidor-->',dados)
+	if vinculo == 'Aluno':
+		dados = '''
+				<label for="campus">Campus: {0}</label>
+				<input type="hidden" id="campus" name="campus" value="{0}">
+				<br />
+				<label for="curso">Curso: {1}</label>
+				<input type="hidden" id="curso" name="curso" value="{1}">
+				<br />
+				'''.format(campus,curso)
+		exibe = exibe.replace('<!--aluno-->',dados)
+	button = '<button type="submit">Salvar</button>'
+	if exists: msg = '<font color="red">O usuário já está cadastrado!</font>'
+	else: msg = '<font color="green">Dados salvos com sucesso!</font>'
+	exibe = exibe.replace(button,msg)
+	return exibe
 
 def main():
-	print("Content-type: text/html\n\n")
 	if db_exists():
-		print("O banco existe!")
+		#print("O banco existe!")
+		pass
 	else:
-		print("Criando o banco...")
+		#print("Criando o banco...")
 		db_create()
 	if table_exists():
-		print("A tabela usuario existe!")
+		#print("A tabela usuario existe!")
+		pass
 	else:
-		print("Criando tabela usuario...")
+		#print("Criando tabela usuario...")
 		table_create()
 	if user_exists(matricula):
-		print("O usuário já está cadastrado.")
+		#print("O usuário já está cadastrado.")
+		print(gerarHTML(1))
 	else:
-		print("Inserindo usuário...")
+		#print("Inserindo usuário...")
 		user_insert()
+		print(gerarHTML(0))
 	
 
 if __name__ == "__main__": main()
